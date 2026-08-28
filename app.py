@@ -435,7 +435,7 @@ def render_modelo_matematico(x1, x2):
              {"label":"Dominio acotado","color":"#00d4ff",
               "prose":"Rango definido por los datos históricos reales de NVIDIA (en millones de USD):",
               "tex": r"\text{Dom}(f) = \bigl[1{,}200\;;\;5{,}000\bigr] \times \bigl[20{,}000\;;\;65{,}000\bigr] \;\subset\; \mathbb{R}^2"}],
-            altura=270)
+            altura=290)
 
         mathjax_block(
             "B — Modelo Lineal: Forma General y Estimador OLS", "#76b900",
@@ -445,7 +445,7 @@ def render_modelo_matematico(x1, x2):
              {"label":"Estimador de mínimos cuadrados","color":"#76b900",
               "prose":"Los coeficientes β minimizan la suma de cuadrados de residuos SSR:",
               "tex": r"\hat{\boldsymbol{\beta}} = \bigl(\mathbf{X}^\top \mathbf{X}\bigr)^{-1}\mathbf{X}^\top\mathbf{z} \qquad \text{con}\quad \text{SSR} = \sum_{i=1}^{8}(z_i - \hat{z}_i)^2"}],
-            altura=280)
+            altura=300)
 
         mathjax_block(
             "C — Modelo con Coeficientes Ajustados (NVIDIA FY25–FY26)", "#f5a623",
@@ -455,7 +455,7 @@ def render_modelo_matematico(x1, x2):
              {"label":"Bondad de ajuste","color":"#f5a623",
               "prose":"El coeficiente R² mide la proporción de varianza de z explicada por el modelo:",
               "tex": r"R^2 = 1 - \dfrac{\displaystyle\sum_{i=1}^{8}(z_i - \hat{z}_i)^2}{\displaystyle\sum_{i=1}^{8}(z_i - \bar{z})^2} \;=\; 0.999995"}],
-            altura=300)
+            altura=320)
 
         mathjax_block(
             f"D — Evaluación Numérica en x₁ = {x1:,.0f}  y  x₂ = {x2:,.0f}", "#ff4d6d",
@@ -466,7 +466,7 @@ def render_modelo_matematico(x1, x2):
               "tex": rf"= 2440.57 + {t1:,.2f} + {t2:,.2f}"},
              {"label":"Resultado final encuadrado","color":"#ff4d6d",
               "tex": rf"\boxed{{\;\hat{{z}} = {z:,.2f}\;\text{{millones de USD}}\;}}"}],
-            altura=340)
+            altura=360)
 
     with col_info:
         st.markdown("""<div style="background:#0d1821;border:1px solid #1e3048;border-radius:10px;padding:16px 18px;margin-bottom:14px">
@@ -657,7 +657,7 @@ def main():
     </script>
     </body></html>
     """
-    components.html(html_code, height=275)
+    components.html(html_code, height=330)
 
     render_metricas(x1, x2, r2)
     st.markdown("<br>", unsafe_allow_html=True)

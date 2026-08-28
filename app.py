@@ -4,38 +4,11 @@ import numpy as np
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import statsmodels.api as sm
-import sqlite3
 
 st.set_page_config(page_title="NVIDIA AI Growth Modeler", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 1. DATABASE LOGIC (SQLite)
-# ==========================================
-def init_db():
-    conn = sqlite3.connect('simulaciones.db')
-    c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS simulaciones (
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  x1 REAL, x2 REAL, z REAL)""")
-    conn.commit()
-    conn.close()
-
-def save_simulacion(x1, x2, z):
-    conn = sqlite3.connect('simulaciones.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO simulaciones (x1, x2, z) VALUES (?, ?, ?)", (float(x1), float(x2), float(z)))
-    conn.commit()
-    conn.close()
-
-def get_historial():
-    conn = sqlite3.connect('simulaciones.db')
-    df = pd.read_sql_query("SELECT id, datetime(timestamp, 'localtime') as Fecha, x1 as 'Inversión I+D', x2 as 'Data Center', z as 'Ingresos (z)' FROM simulaciones ORDER BY timestamp DESC LIMIT 15", conn)
-    conn.close()
-    return df
-
-# ==========================================
-# 2. GLOBAL DATA & STATSMODELS OLS
+# 1. GLOBAL DATA & STATSMODELS OLS
 # ==========================================
 df_global = pd.DataFrame({
     "Trimestre": [
@@ -56,7 +29,7 @@ def f(x1, x2):
     return BETA0 + BETA1 * x1 + BETA2 * x2
 
 # ==========================================
-# 3. THEME & STYLES ENGINE
+# 2. THEME & STYLES ENGINE
 # ==========================================
 def get_theme(is_dark):
     if is_dark:
@@ -141,7 +114,7 @@ def mathjax_block(titulo, color, lineas, T, altura=150):
     components.html(html, height=altura)
 
 # ==========================================
-# 4. PLOTS
+# 3. PLOTS
 # ==========================================
 def graf_funcion_x2(df, x1_val, x2_val, T):
     x_range = np.linspace(20000, 65000, 50)
@@ -273,7 +246,7 @@ def graf_barras_crecimiento(df, x1, x2, T):
     return fig
 
 # ==========================================
-# 5. THREE.JS 3D RENDERER
+# 4. THREE.JS 3D RENDERER
 # ==========================================
 def render_threejs(x1, x2, z, b0, b1, b2, T):
     c_bg = T["three_bg"]
@@ -395,7 +368,7 @@ def render_threejs(x1, x2, z, b0, b1, b2, T):
     components.html(html, height=500)
 
 # ==========================================
-# 6. UI COMPONENTS
+# 5. UI COMPONENTS
 # ==========================================
 def render_header(T):
     grad_start = T["card_bg"]
@@ -427,7 +400,6 @@ def render_sidebar(default_x1, default_x2, r2, T):
         st.markdown(f"<hr style='margin:18px 0;border-color:{T['card_border']}'>", unsafe_allow_html=True)
         st.markdown(f"<b style='color:{T['c_blue']};font-family:Outfit;font-size:0.95rem;'>▶ Animación Interactiva</b>", unsafe_allow_html=True)
         animar = st.button("Simular Escenario Automático ⏯️", use_container_width=True)
-        guardar = st.button("💾 Guardar Escenario en BD", use_container_width=True)
         
         r2c = T["c_green"] if r2 >= 0.97 else "#f57c00"
         st.markdown(f"""<div style="background:{T['card_bg']};border:1px solid {T['card_border']};border-radius:12px;padding:16px;text-align:center;margin-top:15px;box-shadow:0 4px 15px rgba(0,0,0,0.05);">
@@ -438,7 +410,7 @@ def render_sidebar(default_x1, default_x2, r2, T):
         st.markdown(f"""<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};line-height:2.2;letter-spacing:.5px;font-weight:bold;">
           📚 Cálculo Multivariado<br>🏛 UNJFSC · Est. e Informática<br>👤 Cristian Lucas<br>📅 NVIDIA FY25–FY26
         </div>""", unsafe_allow_html=True)
-    return float(x1), float(x2), animar, guardar
+    return float(x1), float(x2), animar
 
 def render_metricas(x1, x2, r2):
     z = f(x1, x2)
@@ -503,11 +475,9 @@ def render_tabla(df, T):
     st.dataframe(tabla, width='stretch', hide_index=True)
 
 # ==========================================
-# 7. MAIN ENTRY
+# 6. MAIN ENTRY
 # ==========================================
 def main():
-    init_db()
-    
     # Theme Toggle Sidebar
     st.sidebar.markdown("<br>", unsafe_allow_html=True)
     tema_selector = st.sidebar.radio("🎨 TEMA VISUAL DE LA APP", ["☀️ Claro (Proyector/Presentación)", "🌌 Oscuro (Estilo NVIDIA)"])
@@ -535,14 +505,10 @@ def main():
     inject_custom_css(T)
     render_header(T)
     
-    x1, x2, animar, guardar = render_sidebar(q_x1, q_x2, R2_OLS, T)
+    x1, x2, animar = render_sidebar(q_x1, q_x2, R2_OLS, T)
     
     if animar:
         st.session_state.is_animating = True
-        
-    if guardar:
-        save_simulacion(x1, x2, f(x1, x2))
-        st.toast("Escenario insertado en la Base de Datos SQLite (simulaciones.db) ✅", icon="💾")
         
     # Escribir URL Params
     st.query_params["x1"] = str(int(x1))
@@ -644,15 +610,7 @@ def main():
         render_threejs(x1, x2, f(x1, x2), BETA0, BETA1, BETA2, T)
 
     st.markdown("---")
-    st.markdown("### 💾 Historial de Simulaciones (SQLite `simulaciones.db`)")
-    st.markdown(f"<p style='font-family:Outfit;color:{T['text_dim']};font-size:0.9rem;font-weight:500;'>Nota: Este historial persiste en memoria gracias a la base de datos SQL local. En Streamlit Cloud gratuito, el archivo de la BD se reiniciará cuando la máquina entre en hibernación, a menos que conectes PostgreSQL/Supabase.</p>", unsafe_allow_html=True)
-    df_hist = get_historial()
-    if not df_hist.empty:
-        st.dataframe(df_hist, hide_index=True, use_container_width=True)
-    else:
-        st.info("Aún no has guardado ningún escenario. Usa el botón en el panel izquierdo.")
-
-    st.markdown(f"""<div style="text-align:center;padding:28px 0 8px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:1px">
+    st.markdown(f"""<div style="text-align:center;padding:12px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:1px">
       NVIDIA AI Growth Modeler &nbsp;·&nbsp; Herramienta Educativa Animada &nbsp;·&nbsp; Cálculo Multivariado
     </div>""", unsafe_allow_html=True)
 

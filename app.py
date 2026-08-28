@@ -23,7 +23,6 @@ df_global = pd.DataFrame({
 X_global = sm.add_constant(df_global[["x1", "x2"]])
 ols_model = sm.OLS(df_global["z"], X_global).fit()
 BETA0, BETA1, BETA2 = ols_model.params
-R2_OLS = ols_model.rsquared
 
 def f(x1, x2):
     return BETA0 + BETA1 * x1 + BETA2 * x2
@@ -407,7 +406,7 @@ def render_header(T):
       </div>
     </div>""", unsafe_allow_html=True)
 
-def render_sidebar(default_x1, default_x2, r2, T):
+def render_sidebar(default_x1, default_x2, T):
     with st.sidebar:
         st.markdown(f"""<div style="text-align:center;padding:10px 0 20px">
           <div style="font-family:'Oxanium',sans-serif;font-size:1.8rem;font-weight:900;color:{T['c_red']};letter-spacing:3px;">NVIDIA</div>
@@ -424,63 +423,74 @@ def render_sidebar(default_x1, default_x2, r2, T):
         st.markdown(f"<b style='color:{T['c_blue']};font-family:Outfit;font-size:0.95rem;'>▶ Animación Interactiva</b>", unsafe_allow_html=True)
         animar = st.button("Simular Escenario Automático ⏯️", use_container_width=True)
         
-        r2c = T["c_green"] if r2 >= 0.97 else "#f57c00"
-        st.markdown(f"""<div style="background:{T['card_bg']};border:1px solid {T['card_border']};border-radius:12px;padding:16px;text-align:center;margin-top:15px;box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:1.5px;margin-bottom:6px">BONDAD DE AJUSTE · R² (OLS)</div>
-          <div style="font-family:'Oxanium',sans-serif;font-size:2.2rem;font-weight:900;color:{r2c};">{r2:.6f}</div>
-        </div>""", unsafe_allow_html=True)
         st.markdown(f"<hr style='margin:16px 0;border-color:{T['card_border']}'>", unsafe_allow_html=True)
         st.markdown(f"""<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};line-height:2.2;letter-spacing:.5px;font-weight:bold;">
-          📚 Cálculo Multivariado<br>🏛 UNJFSC · Est. e Informática<br>👤 Cristian Lucas<br>📅 NVIDIA FY25–FY26
+          📚 Cálculo Multivariado<br>🏛 UNJFSC · Est. e Informática<br>👤 Cristian Lucas<br>📅 Guía de Práctica 1 y 2
         </div>""", unsafe_allow_html=True)
     return float(x1), float(x2), animar
 
-def render_metricas(x1, x2, r2):
+def render_metricas(x1, x2):
     z = f(x1, x2)
-    c1,c2,c3,c4 = st.columns(4)
-    with c1: st.metric("📐  x₁ — Inversión I+D",  f"${x1:,.0f} M")
-    with c2: st.metric("🖥️  x₂ — Data Center",     f"${x2:,.0f} M")
-    with c3: st.metric("🟢  ẑ = f(x₁, x₂)",       f"${z:,.1f} M")
-    with c4: st.metric("📊  R² del Modelo",          f"{r2:.6f}")
+    c1,c2,c3 = st.columns(3)
+    with c1: st.metric("📐 Var. Independiente (x₁)",  f"${x1:,.0f} M")
+    with c2: st.metric("🖥️ Var. Independiente (x₂)",     f"${x2:,.0f} M")
+    with c3: st.metric("🟢 Var. Dependiente f(x₁, x₂)",       f"${z:,.1f} M")
 
 def render_modelo_matematico(x1, x2, T):
-    z = f(x1, x2); t1 = BETA1*x1; t2 = BETA2*x2
-    conf_int = ols_model.conf_int(alpha=0.05)
+    z = f(x1, x2)
     
     st.markdown(f"""<div style="background:linear-gradient(90deg,{T['c_green']}10,{T['card_bg']});border:1px solid {T['card_border']};border-left:4px solid {T['c_green']};border-radius:0 12px 12px 0;padding:16px 22px;margin-bottom:18px;box-shadow:0 4px 15px rgba(0,0,0,0.03)">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:{T['c_red']};font-weight:bold;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px">▶ Marco Matemático — OLS con Statsmodels</div>
-      <div style="font-family:'Outfit',sans-serif;font-size:.9rem;color:{T['text_dim']};line-height:1.75">El modelo representa una <strong style="color:{T['text']}">función de dos variables reales</strong> ajustada dinámicamente con <code>statsmodels.api.OLS</code>.</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:{T['c_red']};font-weight:bold;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px">▶ Guía de Práctica — Funciones de Varias Variables</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:.9rem;color:{T['text_dim']};line-height:1.75">Análisis estructurado según los conceptos de <b>Identificación de Variables, Dominio de la Función y Evaluación</b>.</div>
     </div>""", unsafe_allow_html=True)
 
-    col_math, col_info = st.columns([3, 2], gap="medium")
+    col1, col2 = st.columns([1, 1], gap="large")
 
-    with col_math:
+    with col1:
+        st.markdown(f"""<div style="background:{T['card_bg']}; border:1px solid {T['card_border']}; padding:20px; border-radius:10px; height:100%;">
+        <h4 style="color:{T['c_blue']}; font-family:'Oxanium'; margin-top:0;">1️⃣ Identificación de Variables</h4>
+        <ul style="color:{T['text']}; font-family:'Outfit'; line-height:1.8;">
+          <li><b>Variables Independientes (Explicativas):</b>
+            <ul>
+              <li><code style="color:{T['c_red']}; background:transparent;">x₁</code> : Inversión en Investigación y Desarrollo (I+D)</li>
+              <li><code style="color:{T['c_red']}; background:transparent;">x₂</code> : Ingresos de Data Center / Inteligencia Artificial</li>
+            </ul>
+          </li>
+          <li><b>Variable Dependiente (Respuesta):</b>
+            <ul>
+              <li><code style="color:{T['c_green']}; background:transparent;">z</code> : Ingresos Totales de NVIDIA</li>
+            </ul>
+          </li>
+        </ul>
+        <h4 style="color:{T['c_blue']}; font-family:'Oxanium'; margin-top:20px;">2️⃣ Dominio de la Función</h4>
+        <p style="color:{T['text']}; font-family:'Outfit'; line-height:1.6;">
+        Matemáticamente, la función es polinómica $f: \mathbb{{R}}^2 \\to \mathbb{{R}}$. Sin embargo, por el <b>contexto económico</b> (no existen inversiones ni ingresos negativos), el dominio está restringido al primer cuadrante:
+        </p>
+        <div style="text-align:center; font-family:'JetBrains Mono'; font-weight:bold; color:{T['text']}; background:rgba(0,0,0,0.03); padding:10px; border-radius:8px;">
+           Dom f = {{ (x₁, x₂) ∈ ℝ² | x₁ ≥ 0 ∧ x₂ ≥ 0 }}
+        </div>
+        </div>""", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""<div style="background:{T['card_bg']}; border:1px solid {T['card_border']}; padding:20px; border-radius:10px; height:100%;">
+        <h4 style="color:{T['c_blue']}; font-family:'Oxanium'; margin-top:0; margin-bottom:15px;">3️⃣ Modelo Matemático</h4>
+        """, unsafe_allow_html=True)
         mathjax_block(
-            "C — Modelo con Coeficientes OLS", T["c_green"],
-            [{"label":"Ecuación calibrada","color":T["c_green"],
-              "tex": rf"z = \underbrace{{{BETA0:.2f}}}_{{{{\beta_0}}}} + \underbrace{{{BETA1:.4f}}}_{{{{\beta_1}}}}\cdot x_1 + \underbrace{{{BETA2:.4f}}}_{{{{\beta_2}}}}\cdot x_2"}],
-            T, altura=200)
+            "Regla de correspondencia f(x₁, x₂)", T["c_green"],
+            [{"label":"","color":T["c_green"],
+              "tex": rf"f(x_1, x_2) = {BETA0:.2f} + {BETA1:.4f}x_1 + {BETA2:.4f}x_2"}],
+            T, altura=100)
 
+        st.markdown(f"""<h4 style="color:{T['c_blue']}; font-family:'Oxanium'; margin-top:25px; margin-bottom:15px;">4️⃣ Evaluación de la Función</h4>
+        <p style="color:{T['text']}; font-family:'Outfit'; margin-bottom:10px;">Evaluando la función en el punto $P({x1:,.0f}, {x2:,.0f})$:</p>
+        """, unsafe_allow_html=True)
         mathjax_block(
-            f"D — Evaluación Numérica en x₁ = {x1:,.0f}  y  x₂ = {x2:,.0f}", T["c_red"],
-            [{"label":"Desarrollo aritmético","color":T["c_red"],
-              "tex": rf"= {BETA0:.2f} + {t1:,.2f} + {t2:,.2f}"},
-             {"label":"Resultado final","color":T["c_red"],
-              "tex": rf"\boxed{{\;\hat{{z}} = {z:,.2f}\;\text{{millones de USD}}\;}}"}],
-            T, altura=220)
-
-    with col_info:
-        st.markdown(f"""<div style="background:{T['card_bg']};border:1px solid {T['card_border']};border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:0 4px 15px rgba(0,0,0,0.03)">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['c_red']};font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Statsmodels Summary</div>""", unsafe_allow_html=True)
-        
-        coef_table = pd.DataFrame({
-            "Coeficiente": ["β₀ (Intercept)", "β₁ (I+D)", "β₂ (Data Center)"],
-            "Valor OLS": [f"{BETA0:.4f}", f"{BETA1:.4f}", f"{BETA2:.4f}"],
-            "IC Inferior": [f"{conf_int.iloc[0][0]:.4f}", f"{conf_int.iloc[1][0]:.4f}", f"{conf_int.iloc[2][0]:.4f}"],
-            "IC Superior": [f"{conf_int.iloc[0][1]:.4f}", f"{conf_int.iloc[1][1]:.4f}", f"{conf_int.iloc[2][1]:.4f}"]
-        })
-        st.dataframe(coef_table, hide_index=True)
-        st.markdown(f"<div style='font-size:0.85rem; color:{T['text_dim']}; font-weight:bold; margin-top:10px'>R-squared: <span style='color:{T['c_blue']}'>{R2_OLS:.6f}</span> &nbsp;|&nbsp; F-statistic: <span style='color:{T['c_blue']}'>{ols_model.fvalue:.1f}</span></div>", unsafe_allow_html=True)
+            f"Evaluación Numérica", T["c_red"],
+            [{"label":"Sustitución","color":T["c_red"],
+              "tex": rf"f({x1:,.0f}, {x2:,.0f}) = {BETA0:.2f} + {BETA1:.4f}({x1:,.0f}) + {BETA2:.4f}({x2:,.0f})"},
+             {"label":"Resultado","color":T["c_red"],
+              "tex": rf"\mathbf{{ \hat{{z}} = {z:,.2f} }} \text{{ Mill. USD}}"}],
+            T, altura=150)
         st.markdown("</div>", unsafe_allow_html=True)
 
 def render_tabla(df, T):
@@ -494,7 +504,7 @@ def render_tabla(df, T):
         "ẑ Modelo": [f"${v:,.1f}M" for v in z_m],
         "Error (z−ẑ)": [f"{'+'if e>=0 else ''}{e:,.1f}M" for e in err],
     })
-    st.markdown(f"""<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">● Datos Históricos — Real vs Modelo OLS</div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">● Datos Históricos — Real vs Modelo</div>""", unsafe_allow_html=True)
     st.dataframe(tabla, width='stretch', hide_index=True)
 
 # ==========================================
@@ -528,7 +538,7 @@ def main():
     inject_custom_css(T)
     render_header(T)
     
-    x1, x2, animar = render_sidebar(q_x1, q_x2, R2_OLS, T)
+    x1, x2, animar = render_sidebar(q_x1, q_x2, T)
     
     if animar:
         st.session_state.is_animating = True
@@ -561,15 +571,15 @@ def main():
     @keyframes blink {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0; }} }}
     </style>
     </head><body>
-    <div class="title">✨ Análisis Inteligente</div>
+    <div class="title">✨ Resumen del Escenario</div>
     <span id="content"></span><span id="cursor"></span>
     <script>
-    const textHTML = `<strong>Modelo Estadístico OLS:</strong><br>
-    La función matemática <strong style="color:{T['c_red']};">z = f(x₁, x₂)</strong> ha sido entrenada en tiempo real usando <code>statsmodels</code>. 
-    Tu simulación actual establece la Inversión en I+D en <span class="highlight">${x1_str}M</span> y Data Center en <span class="highlight">${x2_str}M</span>.<br><br>
-    Bajo este escenario, el modelo proyecta que la variable dependiente <strong>z (Ingresos Totales)</strong> alcance exactamente <span class="red">${z_str} Millones de USD</span>.<br><br>
-    <em style="color:{T['text_dim']}; font-weight: 600;">💡 Interactividad Dinámica:</em><br>
-    Rota la superficie 3D (pestaña 5), o <strong>haz clic en cualquier punto del gráfico histórico (pestaña 3)</strong> para viajar en el tiempo a ese trimestre. También puedes copiar la URL de esta página para compartir este análisis.`;
+    const textHTML = `<strong>Evaluación de la Función:</strong><br>
+    La regla de correspondencia de nuestra superficie es <strong style="color:{T['c_red']};">z = f(x₁, x₂)</strong>. 
+    Actualmente estás evaluando el modelo asignando a la Variable Independiente <span class="highlight">x₁ = ${x1_str}</span> (I+D) y a la Variable Independiente <span class="highlight">x₂ = ${x2_str}</span> (Data Center).<br><br>
+    Al sustituir estos valores, la <strong>Variable Dependiente (z)</strong> nos da un resultado de <span class="red">${z_str} Millones de USD</span> en Ingresos Totales.<br><br>
+    <em style="color:{T['text_dim']}; font-weight: 600;">💡 Tip Interactivo:</em><br>
+    Rota la superficie 3D (pestaña 5), o <strong>haz clic en cualquier punto del gráfico histórico (pestaña 3)</strong> para saltar a diferentes valores del dominio.`;
 
     let i = 0; let isTag = false; let currentHTML = ""; const el = document.getElementById("content");
     function type() {{
@@ -585,16 +595,16 @@ def main():
     </script>
     </body></html>
     """
-    components.html(html_code, height=330)
+    components.html(html_code, height=300)
 
-    render_metricas(x1, x2, R2_OLS)
+    render_metricas(x1, x2)
     st.markdown("<br>", unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📈  Gráfica del Modelo (Animado)",
         "📊  Gráfico de Barras (Ganancias)",
         "📉  Tendencia Histórica (Clickeable)",
-        "🔢  Modelo Matemático (OLS)",
+        "🔢  Modelo Matemático y Dominio",
         "🪐  Superficie 3D (Three.js)"
     ])
     
@@ -634,7 +644,7 @@ def main():
 
     st.markdown("---")
     st.markdown(f"""<div style="text-align:center;padding:12px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:1px">
-      NVIDIA AI Growth Modeler &nbsp;·&nbsp; Herramienta Educativa Animada &nbsp;·&nbsp; Cálculo Multivariado
+      NVIDIA AI Growth Modeler &nbsp;·&nbsp; Guía de Práctica 1 y 2 &nbsp;·&nbsp; Cálculo Multivariado
     </div>""", unsafe_allow_html=True)
 
 if __name__ == "__main__":

@@ -155,12 +155,28 @@ def graf_funcion_x2(df, x1_val, x2_val, T):
         xaxis_range=[15000, 70000], xaxis_tickformat=",.0f",
         yaxis_title=dict(text="z — Ingresos Totales [Mill. USD]", font=dict(color=T["text"], size=13, family="Outfit", weight="bold")),
         yaxis_range=[20000, 75000], yaxis_tickformat=",.0f",
-        annotations=[dict(
-            x=x2_val, y=z_sim, text=f"  ẑ = {z_sim:,.0f} M",
-            showarrow=False, xanchor="left", yanchor="middle",
-            font=dict(color=T["c_red"], size=12, family="JetBrains Mono", weight="bold"),
-            bgcolor=T["card_bg"], bordercolor=T["c_red"], borderwidth=1.5, borderpad=5,
-        )],
+        annotations=[
+            dict(
+                x=x2_val, y=z_sim, text=f"  ẑ = {z_sim:,.0f} M",
+                showarrow=False, xanchor="left", yanchor="middle",
+                font=dict(color=T["c_red"], size=12, family="JetBrains Mono", weight="bold"),
+                bgcolor=T["card_bg"], bordercolor=T["c_red"], borderwidth=1.5, borderpad=5,
+            ),
+            dict(
+                x=0.02, y=0.98, xref="paper", yref="paper",
+                text="<b>GUÍA DE VARIABLES (Corte 2D):</b><br><br>"
+                     "<b>Eje Vertical (z)</b> = Ingresos Totales (F. Objetivo)<br>"
+                     "<b>Eje Horizontal (x₂)</b> = Ingresos Data Center<br>"
+                     f"<b>Parámetro Fijo (x₁)</b> = Inversión I+D ({x1_val:,.0f} M)<br><br>"
+                     "<i>La línea muestra cómo sube 'z' al aumentar 'x₂',<br>"
+                     "manteniendo 'x₁' estático en este escenario.</i>",
+                showarrow=False, xanchor="left", yanchor="top",
+                font=dict(color=T["text"], size=12, family="Outfit"),
+                bgcolor=T["card_bg"], bordercolor=T["card_border"], borderwidth=1, borderpad=10,
+                align="left"
+            )
+        ],
+        legend=dict(x=0.02, y=0.5, bgcolor=T["card_bg"], bordercolor=T["card_border"], borderwidth=1)
     )
     return fig
 
@@ -266,6 +282,13 @@ def render_threejs(x1, x2, z, b0, b1, b2, T):
       }} }}
     </script>
     </head><body>
+    <div style="position:absolute; top:15px; left:15px; background:{T['card_bg']}E6; padding:15px 20px; border-radius:8px; border:1px solid {T['card_border']}; font-family:'Outfit',sans-serif; font-size:13px; color:{T['text']}; pointer-events:none; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+      <b style="color:{T['c_blue']}; font-size:15px; text-transform:uppercase; letter-spacing:1px;">Superficie 3D: z = f(x₁, x₂)</b><br><br>
+      <b>Eje Profundidad:</b> <span style="color:{T['text_dim']}">x₁ (Inversión en I+D)</span><br>
+      <b>Eje Horizontal:</b> <span style="color:{T['text_dim']}">x₂ (Data Center)</span><br>
+      <b>Eje Vertical:</b> <span style="color:{T['text_dim']}">z (Ingresos Totales)</span><br><br>
+      <span style="color:{T['c_red']}; font-weight:bold;">🔴 Esfera Roja:</span> Escenario Actual
+    </div>
     <script type="module">
       import * as THREE from 'three';
       import {{ OrbitControls }} from 'three/addons/controls/OrbitControls.js';

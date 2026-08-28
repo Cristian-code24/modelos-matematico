@@ -318,44 +318,65 @@ def graf_funcion_x1(df, x1_val, x2_val):
 
 
 
-def graf_lineas_historico(df):
-    z_r = df["z"].values
-    t = df["Trimestre"].values
-    z_m = f(df["x1"].values, df["x2"].values)
+def graf_lineas_historico(df, x1, x2):
+    import pandas as pd
+    z_sim = f(x1, x2)
+    
+    # Añadir el punto simulado
+    z_r = list(df["z"].values) + [z_sim]
+    t = list(df["Trimestre"].values) + ["🎯 SIMULADO"]
+    z_m = list(f(df["x1"].values, df["x2"].values)) + [z_sim]
     x_vals = np.arange(1, len(t) + 1)
     
     fig = go.Figure()
     
-    text_labels = [f"({i}, {y:,.0f})" for i, y in zip(x_vals, z_r)]
+    text_labels = [f"({i}, {y:,.0f})" for i, y in zip(x_vals[:-1], z_r[:-1])] + [f"🎯 {z_sim:,.0f}"]
     
+    # Línea histórica
     fig.add_trace(go.Scatter(
-        x=x_vals, y=z_r, mode="lines+markers+text",
+        x=x_vals[:-1], y=z_r[:-1], mode="lines+markers+text",
+        name="Histórico",
         line=dict(color="#f40000", width=4),
         marker=dict(symbol="x", size=10, color="#000000", line=dict(width=2.5, color="#000000")),
-        text=text_labels,
+        text=text_labels[:-1],
         textposition="top center",
         textfont=dict(color="#000000", size=11, family="Outfit"),
         hovertemplate="<b>Trimestre: %{customdata}</b><br>z Real: $%{y:,.0f}M<extra></extra>",
-        customdata=t
+        customdata=t[:-1]
     ))
     
+    # Línea que conecta al simulado
     fig.add_trace(go.Scatter(
-        x=x_vals, y=z_m, mode="lines+markers",
+        x=x_vals[-2:], y=z_r[-2:], mode="lines+markers+text",
+        name="Proyección Simulación",
+        line=dict(color="#00d4ff", width=4, dash="dot"),
+        marker=dict(symbol="diamond", size=14, color="#00d4ff"),
+        text=["", text_labels[-1]],
+        textposition="top center",
+        textfont=dict(color="#00d4ff", size=13, family="Outfit", weight="bold"),
+        hovertemplate="<b>%{customdata}</b><br>ẑ Simulado: $%{y:,.0f}M<extra></extra>",
+        customdata=t[-2:]
+    ))
+    
+    # Modelo ẑ
+    fig.add_trace(go.Scatter(
+        x=x_vals[:-1], y=z_m[:-1], mode="lines+markers",
         name="Modelo ẑ",
         line=dict(color="#0055ff", width=2.5, dash="dash"),
         marker=dict(symbol="circle", size=7, color="#0055ff"),
         hovertemplate="<b>Trimestre: %{customdata}</b><br>Modelo ẑ: $%{y:,.0f}M<extra></extra>",
-        customdata=t
+        customdata=t[:-1]
     ))
     
     fig.update_layout(**GEO)
     fig.update_layout(
-        title=dict(text="<b>Tendencia Histórica NVIDIA</b>",
+        title=dict(text="<b>Tendencia Histórica NVIDIA + Escenario Interactivo</b>",
                    font=dict(color="#000000", size=14, family="Outfit"), x=.02),
-        xaxis_title=dict(text="Intervalos ⟶", font=dict(color="#000000", size=13, family="Outfit")),
+        xaxis_title=dict(text="Intervalos / Simulación ⟶", font=dict(color="#000000", size=13, family="Outfit")),
         yaxis_tickformat=",.0f",
-        xaxis=dict(tickmode='array', tickvals=x_vals, ticktext=x_vals),
-        yaxis_range=[20000, 75000]
+        xaxis=dict(tickmode='array', tickvals=x_vals, ticktext=t),
+        yaxis_range=[20000, 95000],
+        showlegend=True, legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)")
     )
     
     fig.add_annotation(
@@ -521,21 +542,34 @@ def render_tabla(df):
 
 
 
-def graf_barras_crecimiento(df):
+def graf_barras_crecimiento(df, x1, x2):
+    import pandas as pd
     df_chart = df.copy()
+    z_sim = f(x1, x2)
+    
+    # Añadir el escenario simulado a los datos
+    nueva_fila = pd.DataFrame([{
+        "Trimestre": "🎯 SIMULADO",
+        "x1": x1,
+        "x2": x2,
+        "z": z_sim
+    }])
+    df_chart = pd.concat([df_chart, nueva_fila], ignore_index=True)
     df_chart['Delta'] = df_chart['z'].diff().fillna(0)
     
     fig = go.Figure()
+    
+    colors = ["#1e3048" if i < len(df_chart)-1 else "#00d4ff" for i in range(len(df_chart))]
+    lines = ["#76b900" if i < len(df_chart)-1 else "#00d4ff" for i in range(len(df_chart))]
     
     # Barras principales
     fig.add_trace(go.Bar(
         x=df_chart['Trimestre'], 
         y=df_chart['z'],
-        name="Ingresos (z)",
+        name="Ingresos Totales",
         marker=dict(
-            color=df_chart['z'],
-            colorscale=[[0, "#1e3048"], [1, "#76b900"]],
-            line=dict(color="#76b900", width=1)
+            color=colors,
+            line=dict(color=lines, width=1.5)
         ),
         text=[f"${v:,.0f}M" for v in df_chart['z']],
         textposition='outside',
@@ -547,7 +581,7 @@ def graf_barras_crecimiento(df):
         x=df_chart['Trimestre'], 
         y=df_chart['Delta'],
         mode="lines+markers",
-        name="Ganancia/Crecimiento vs Anterior",
+        name="Crecimiento Marginal",
         line=dict(color="#00d4ff", width=3, dash="dot"),
         marker=dict(size=12, color="#00d4ff", symbol="diamond"),
         yaxis="y2"
@@ -555,13 +589,13 @@ def graf_barras_crecimiento(df):
     
     fig.update_layout(**GEO)
     fig.update_layout(
-        title=dict(text="<b>Análisis de Ganancias y Evolución Financiera</b>", font=dict(color="#000000", size=14, family="Outfit"), x=0.01),
-        yaxis=dict(title="Ingresos Totales (z)", range=[0, 80000]),
+        title=dict(text="<b>Análisis de Ganancias Históricas + Escenario Interactivo</b>", font=dict(color="#000000", size=14, family="Outfit"), x=0.01),
+        yaxis=dict(title="Ingresos Totales (z)", range=[0, 95000]),
         yaxis2=dict(
             title="Crecimiento Adicional",
             overlaying="y",
             side="right",
-            range=[-2000, 15000],
+            range=[-15000, 30000],
             showgrid=False
         ),
         legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)"),
@@ -708,7 +742,7 @@ def main():
             "</div>",
             unsafe_allow_html=True
         )
-        st.plotly_chart(graf_barras_crecimiento(df), width="stretch", config={"displaylogo": False})
+        st.plotly_chart(graf_barras_crecimiento(df, x1, x2), width="stretch", config={"displaylogo": False})
         
         st.markdown("<p style='font-family:Outfit;color:#a0b8c8;font-size:0.9rem;text-align:center;'>Las barras muestran los ingresos totales (z), y la línea punteada celeste indica la <b>ganancia extra</b> (crecimiento) respecto al trimestre anterior.</p>", unsafe_allow_html=True)
 
@@ -721,7 +755,7 @@ def main():
             "</div>",
             unsafe_allow_html=True
         )
-        st.plotly_chart(graf_lineas_historico(df), width="stretch", config={"displaylogo": False})
+        st.plotly_chart(graf_lineas_historico(df, x1, x2), width="stretch", config={"displaylogo": False})
         st.markdown("<br>", unsafe_allow_html=True)
         render_tabla(df)
 

@@ -568,7 +568,7 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📈  Gráficas GeoGebra (Animado)",
+        "📈  Gráfica del Modelo (Animado)",
         "📊  Gráfico de Barras (Ganancias)",
         "📉  Tendencia Histórica (Clickeable)",
         "🔢  Modelo Matemático (OLS)",

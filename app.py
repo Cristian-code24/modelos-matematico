@@ -559,7 +559,7 @@ def graf_barras_crecimiento(df, x1, x2):
     
     fig = go.Figure()
     
-    colors = ["#1e3048" if i < len(df_chart)-1 else "#00d4ff" for i in range(len(df_chart))]
+    colors = ["#76b900" if i < len(df_chart)-1 else "#00d4ff" for i in range(len(df_chart))]
     lines = ["#76b900" if i < len(df_chart)-1 else "#00d4ff" for i in range(len(df_chart))]
     
     # Barras principales

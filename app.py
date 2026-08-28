@@ -624,8 +624,8 @@ def main():
     <script>
     const textHTML = `<strong>Análisis del estado actual:</strong><br>
     La función matemática que rige el modelo es <strong style="color:#f40000;">z = f(x₁, x₂)</strong>. 
-    Actualmente has fijado la variable independiente <strong>x₁ (Inversión en I+D) en <span class="highlight">${{x1_str}}M</span></strong> y <strong>x₂ (Data Center) en <span class="highlight">${{x2_str}}M</span></strong>.<br><br>
-    Esto hace que la variable dependiente <strong>z (Ingresos Totales)</strong> alcance exactamente <strong><span class="red">${{z_str}}M</span></strong>.<br><br>
+    Actualmente has fijado la variable independiente <strong>x₁ (Inversión en I+D) en <span class="highlight">${x1_str}M</span></strong> y <strong>x₂ (Data Center) en <span class="highlight">${x2_str}M</span></strong>.<br><br>
+    Esto hace que la variable dependiente <strong>z (Ingresos Totales)</strong> alcance exactamente <strong><span class="red">${z_str}M</span></strong>.<br><br>
     <em style="color:#d8e8f0;">💡 ¿Cómo se comporta la variable dependiente (z)?</em><br>
     El modelo demuestra que ambas variables impulsan el ingreso. Por cada millón adicional en I+D (x₁), los ingresos crecen <strong>$1.69M</strong>. Observa el gráfico interactivo abajo: la curva roja representa el valor de z asumiendo un x₁ constante. Si subes el slider de x₁ (o activas la animación), toda la curva <strong>se desplaza verticalmente</strong> hacia arriba, demostrando que z experimenta un salto drástico en todos los escenarios posibles de x₂.`;
 

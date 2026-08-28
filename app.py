@@ -699,7 +699,20 @@ def main():
             "↔ Mueve el slider <b style='color:#f40000'>x₂</b> para deslizar el punto sobre la curva.</span>",
             unsafe_allow_html=True)
 
-    with tab4:
+    with tab2:
+        st.markdown(
+            "<div style='font-family:JetBrains Mono,monospace;font-size:.6rem;"
+            "color:#f40000;letter-spacing:2px;text-transform:uppercase;"
+            "padding:8px 0 14px;'>"
+            "● Balance General: Ingresos vs Crecimiento"
+            "</div>",
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(graf_barras_crecimiento(df), width="stretch", config={"displaylogo": False})
+        
+        st.markdown("<p style='font-family:Outfit;color:#a0b8c8;font-size:0.9rem;text-align:center;'>Las barras muestran los ingresos totales (z), y la línea punteada celeste indica la <b>ganancia extra</b> (crecimiento) respecto al trimestre anterior.</p>", unsafe_allow_html=True)
+
+    with tab3:
         st.markdown(
             "<div style='font-family:JetBrains Mono,monospace;font-size:.6rem;"
             "color:#f40000;letter-spacing:2px;text-transform:uppercase;"

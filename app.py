@@ -464,7 +464,7 @@ def render_modelo_matematico(x1, x2, T):
         </ul>
         <h4 style="color:{T['c_blue']}; font-family:'Oxanium'; margin-top:20px;">2️⃣ Dominio de la Función</h4>
         <p style="color:{T['text']}; font-family:'Outfit'; line-height:1.6;">
-        Matemáticamente, la función es polinómica $f: \mathbb{{R}}^2 \\to \mathbb{{R}}$. Sin embargo, por el <b>contexto económico</b> (no existen inversiones ni ingresos negativos), el dominio está restringido al primer cuadrante:
+        Matemáticamente, la función es polinómica <span style="font-family:'JetBrains Mono',monospace; color:{T['c_red']};">f : ℝ² → ℝ</span>. Sin embargo, por el <b>contexto económico</b> (no existen inversiones ni ingresos negativos), el dominio está restringido al primer cuadrante:
         </p>
         <div style="text-align:center; font-family:'JetBrains Mono'; font-weight:bold; color:{T['text']}; background:rgba(0,0,0,0.03); padding:10px; border-radius:8px;">
            Dom f = {{ (x₁, x₂) ∈ ℝ² | x₁ ≥ 0 ∧ x₂ ≥ 0 }}

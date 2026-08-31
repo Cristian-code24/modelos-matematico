@@ -95,7 +95,6 @@ def inject_custom_css(T):
 
 def mathjax_block(titulo, color, lineas, T, altura=150):
     html = f"""<!DOCTYPE html><html><head>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -482,7 +481,7 @@ def render_modelo_matematico(x1, x2, T):
             T, altura=100)
 
         st.markdown(f"""<h4 style="color:{T['c_blue']}; font-family:'Oxanium'; margin-top:25px; margin-bottom:15px;">4️⃣ Evaluación de la Función</h4>
-        <p style="color:{T['text']}; font-family:'Outfit'; margin-bottom:10px;">Evaluando la función en el punto $P({x1:,.0f}, {x2:,.0f})$:</p>
+        <p style="color:{T['text']}; font-family:'Outfit'; margin-bottom:10px;">Evaluando la función en el punto <span style="font-family:'JetBrains Mono',monospace; color:{T['c_red']};">P({x1:,.0f}, {x2:,.0f})</span>:</p>
         """, unsafe_allow_html=True)
         mathjax_block(
             f"Evaluación Numérica", T["c_red"],
@@ -505,7 +504,7 @@ def render_tabla(df, T):
         "Error (z−ẑ)": [f"{'+'if e>=0 else ''}{e:,.1f}M" for e in err],
     })
     st.markdown(f"""<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:{T['text_dim']};font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">● Datos Históricos — Real vs Modelo</div>""", unsafe_allow_html=True)
-    st.dataframe(tabla, width='stretch', hide_index=True)
+    st.dataframe(tabla, use_container_width=True, hide_index=True)
 
 # ==========================================
 # 6. MAIN ENTRY
@@ -616,23 +615,23 @@ def main():
             import time
             for anim_val in range(1200, 5200, 150):
                 with graf_placeholder.container():
-                    st.plotly_chart(graf_funcion_x2(df_global, anim_val, x2, T), width="stretch", config={"displaylogo": False})
+                    st.plotly_chart(graf_funcion_x2(df_global, anim_val, x2, T), use_container_width=True, config={"displaylogo": False})
                 time.sleep(0.08)
             st.session_state.is_animating = False
             st.rerun()
         else:
             with graf_placeholder.container():
-                st.plotly_chart(graf_funcion_x2(df_global, x1, x2, T), width='stretch', config={'displaylogo': False})
+                st.plotly_chart(graf_funcion_x2(df_global, x1, x2, T), use_container_width=True, config={'displaylogo': False})
             
         st.markdown(f"<span style='font-family:JetBrains Mono;font-size:.65rem;color:{T['text_dim']};font-weight:bold;'>↕ Mueve el slider <b style='color:{T['c_red']}'>x₁</b> para desplazar la curva arriba/abajo. ↔ Mueve el slider <b style='color:{T['c_red']}'>x₂</b> para deslizar el punto.</span>", unsafe_allow_html=True)
 
     with tab2:
         st.markdown(f"<div style='font-family:JetBrains Mono;font-size:.65rem;color:{T['c_red']};font-weight:bold;letter-spacing:2px;padding:8px 0 14px;'>● Balance General: Ingresos vs Crecimiento</div>", unsafe_allow_html=True)
-        st.plotly_chart(graf_barras_crecimiento(df_global, x1, x2, T), width="stretch", config={"displaylogo": False})
+        st.plotly_chart(graf_barras_crecimiento(df_global, x1, x2, T), use_container_width=True, config={"displaylogo": False})
         
     with tab3:
         st.markdown(f"<div style='font-family:JetBrains Mono;font-size:.65rem;color:{T['c_red']};font-weight:bold;letter-spacing:2px;padding:8px 0 14px;'>● Clic en cualquier punto de la línea para aplicar los valores de ese trimestre</div>", unsafe_allow_html=True)
-        st.plotly_chart(graf_lineas_historico(df_global, x1, x2, T), width="stretch", config={"displaylogo": False}, on_select="rerun", selection_mode="points", key="chart_hist_select")
+        st.plotly_chart(graf_lineas_historico(df_global, x1, x2, T), use_container_width=True, config={"displaylogo": False}, on_select="rerun", selection_mode="points", key="chart_hist_select")
         render_tabla(df_global, T)
 
     with tab4:
